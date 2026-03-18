@@ -1,5 +1,6 @@
 using StreetComb.AI;
 using StreetComb.Fighters;
+using StreetComb.Flow;
 using StreetComb.InputSystem;
 using StreetComb.DebugTools;
 using StreetComb.UI;
@@ -42,6 +43,10 @@ namespace StreetComb.Core
             var enemyAI = enemyAIObject.AddComponent<SimpleEnemyAI>();
             enemyAI.Setup(enemy, player);
 
+            var roundFlowObject = new GameObject("RoundFlow");
+            var roundFlow = roundFlowObject.AddComponent<RoundFlowController>();
+            roundFlow.Setup(player, enemy);
+
             CreateArena();
         }
 
@@ -52,6 +57,14 @@ namespace StreetComb.Core
             fighterObject.transform.position = position;
             fighterObject.transform.localScale = new Vector3(1f, 2f, 1f);
             fighterObject.GetComponent<Renderer>().material.color = color;
+            fighterObject.AddComponent<StreetComb.Combat.DamageFlash>();
+
+            var shadow = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            shadow.name = fighterName + "_Shadow";
+            shadow.transform.SetParent(fighterObject.transform);
+            shadow.transform.localPosition = new Vector3(0f, -1f, 0f);
+            shadow.transform.localScale = new Vector3(0.8f, 0.03f, 0.8f);
+            shadow.GetComponent<Renderer>().material.color = new Color(0f, 0f, 0f, 0.4f);
 
             var fighter = fighterObject.AddComponent<FighterController>();
             fighter.FighterName = fighterName;

@@ -25,6 +25,7 @@ namespace StreetComb.Fighters
         private readonly CombatStateMachine _stateMachine = new();
         private HealthComponent _health;
         private EnergyComponent _energy;
+        private DamageFlash _damageFlash;
         private Vector3 _spawnPosition;
 
         public string FighterName = "Fighter";
@@ -36,6 +37,7 @@ namespace StreetComb.Fighters
         {
             _health = GetComponent<HealthComponent>();
             _energy = GetComponent<EnergyComponent>();
+            _damageFlash = GetComponent<DamageFlash>();
             _spawnPosition = transform.position;
 
             _health.OnKO += OnKO;
@@ -51,6 +53,7 @@ namespace StreetComb.Fighters
             transform.position = _spawnPosition;
             _stateMachine.SetState(CombatState.Idle);
             _health.ResetHealth();
+            _damageFlash?.RefreshBaseColor();
         }
 
         public void ExecuteGesture(GestureType gestureType)
@@ -163,6 +166,8 @@ namespace StreetComb.Fighters
             }
 
             _stateMachine.SetState(CombatState.HitStun);
+            _damageFlash?.Flash();
+            transform.position += new Vector3(damage * 0.02f * Mathf.Sign(transform.position.x - (opponent != null ? opponent.transform.position.x : 0f)), 0f, 0f);
             _health.ApplyDamage(damage);
             if (_stateMachine.CurrentState is not CombatState.KO)
             {

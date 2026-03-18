@@ -8,6 +8,9 @@ namespace StreetComb.Fighters
     [RequireComponent(typeof(EnergyComponent))]
     public class FighterController : MonoBehaviour
     {
+        [Header("Identity")]
+        [SerializeField] private FighterArchetype archetype = FighterArchetype.Raze;
+
         [Header("Movement")]
         [SerializeField] private float moveStep = 1.5f;
         [SerializeField] private float jumpForce = 3f;
@@ -32,6 +35,7 @@ namespace StreetComb.Fighters
         public CombatState CurrentState => _stateMachine.CurrentState;
         public HealthComponent Health => _health;
         public EnergyComponent Energy => _energy;
+        public FighterArchetype Archetype => archetype;
 
         private void Awake()
         {
@@ -40,12 +44,19 @@ namespace StreetComb.Fighters
             _damageFlash = GetComponent<DamageFlash>();
             _spawnPosition = transform.position;
 
+            ApplyArchetypeTuning();
             _health.OnKO += OnKO;
         }
 
         public void SetOpponent(FighterController newOpponent)
         {
             opponent = newOpponent;
+        }
+
+        public void SetArchetype(FighterArchetype newArchetype)
+        {
+            archetype = newArchetype;
+            ApplyArchetypeTuning();
         }
 
         public void ResetFighter()
@@ -172,6 +183,31 @@ namespace StreetComb.Fighters
             if (_stateMachine.CurrentState is not CombatState.KO)
             {
                 _stateMachine.SetState(CombatState.Idle);
+            }
+        }
+
+        private void ApplyArchetypeTuning()
+        {
+            switch (archetype)
+            {
+                case FighterArchetype.Raze:
+                    moveStep = 1.9f;
+                    jumpForce = 3.2f;
+                    lightDamage = 7f;
+                    comboDamage = 13f;
+                    launcherDamage = 16f;
+                    specialDamage = 24f;
+                    specialCost = 22f;
+                    break;
+                case FighterArchetype.IronMonk:
+                    moveStep = 1.25f;
+                    jumpForce = 2.4f;
+                    lightDamage = 10f;
+                    comboDamage = 16f;
+                    launcherDamage = 21f;
+                    specialDamage = 30f;
+                    specialCost = 28f;
+                    break;
             }
         }
 

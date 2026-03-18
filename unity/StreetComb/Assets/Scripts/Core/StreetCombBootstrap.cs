@@ -15,8 +15,8 @@ namespace StreetComb.Core
             SetupCamera();
             CreateBackground();
 
-            var player = CreateFighter("Raze", new Vector3(-2f, 0f, 0f), new Color(1f, 0.65f, 0.1f));
-            var enemy = CreateFighter("Iron Monk", new Vector3(2f, 0f, 0f), new Color(0.3f, 0.55f, 0.95f));
+            var player = CreateFighter("Raze", FighterArchetype.Raze, new Vector3(-2f, 0f, 0f), new Color(1f, 0.65f, 0.1f));
+            var enemy = CreateFighter("Iron Monk", FighterArchetype.IronMonk, new Vector3(2f, 0f, 0f), new Color(0.3f, 0.55f, 0.95f));
 
             player.SetOpponent(enemy);
             enemy.SetOpponent(player);
@@ -50,7 +50,7 @@ namespace StreetComb.Core
             CreateArena();
         }
 
-        private FighterController CreateFighter(string fighterName, Vector3 position, Color color)
+        private FighterController CreateFighter(string fighterName, FighterArchetype archetype, Vector3 position, Color color)
         {
             var fighterObject = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             fighterObject.name = fighterName;
@@ -68,6 +68,7 @@ namespace StreetComb.Core
 
             var fighter = fighterObject.AddComponent<FighterController>();
             fighter.FighterName = fighterName;
+            fighter.SetArchetype(archetype);
             fighterObject.AddComponent<StreetComb.Combat.HealthComponent>();
             fighterObject.AddComponent<StreetComb.Combat.EnergyComponent>();
 

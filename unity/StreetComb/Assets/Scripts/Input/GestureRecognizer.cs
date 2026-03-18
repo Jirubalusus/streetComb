@@ -30,6 +30,11 @@ namespace StreetComb.InputSystem
                 return new GestureResult(GestureType.Tap, 1f, Vector2.zero);
             }
 
+            if (duration <= 0.28f && totalDistance <= _swipeMinDistance * 0.45f && sample.Points.Count == 2)
+            {
+                return new GestureResult(GestureType.DoubleTap, 0.98f, Vector2.zero);
+            }
+
             if (duration >= _holdMinDuration && totalDistance <= _holdMaxDistance)
             {
                 return new GestureResult(GestureType.Hold, 0.95f, Vector2.zero);

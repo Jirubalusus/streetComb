@@ -8,9 +8,14 @@ namespace StreetComb.InputSystem
         public event Action<GestureSample> OnGestureCompleted;
 
         [SerializeField] private bool useMouseInEditor = true;
+        [SerializeField] private float doubleTapWindow = 0.28f;
+        [SerializeField] private float tapMaxDistance = 25f;
+        [SerializeField] private float tapMaxDuration = 0.18f;
 
         private readonly GestureSample _currentSample = new();
         private bool _isCapturing;
+        private float _lastTapTime = -10f;
+        private Vector2 _lastTapPosition;
 
         public GestureSample CurrentSample => _currentSample;
         public bool IsCapturing => _isCapturing;
@@ -85,7 +90,31 @@ namespace StreetComb.InputSystem
         {
             _currentSample.AddPoint(position, Time.time);
             _isCapturing = false;
+
+            if (IsTapSample(_currentSample))
+            {
+                if (Time.time - _lastTapTime <= doubleTapWindow && Vector2.Distance(position, _lastTapPosition) <= tapMaxDistance)
+                {
+                    var doubleTapSample = new GestureSample();
+                    doubleTapSample.Reset(_lastTapTime);
+                    doubleTapSample.AddPoint(_lastTapPosition, _lastTapTime);
+                    doubleTapSample.AddPoint(position, Time.time);
+                    OnGestureCompleted?.Invoke(doubleTapSample);
+                    _lastTapTime = -10f;
+                    _lastTapPosition = Vector2.zero;
+                    return;
+                }
+
+                _lastTapTime = Time.time;
+                _lastTapPosition = position;
+            }
+
             OnGestureCompleted?.Invoke(_currentSample);
+        }
+
+        private bool IsTapSample(GestureSample sample)
+        {
+            return sample.Duration <= tapMaxDuration && sample.TotalDistance <= tapMaxDistance;
         }
     }
 }
